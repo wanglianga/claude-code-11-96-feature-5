@@ -4,6 +4,7 @@ import type { AppEvent, Draft, Snapshot } from '../types';
 import type { WorkerRequest, WorkerResponse } from './incident.worker';
 import type { PlanProposal, RoomCheck } from '../engine/scheduling';
 import type { DraftCheck } from '../engine/commands';
+import type { MeetingOption } from '../engine/meeting';
 import { setSeqStart } from '../engine/commands';
 
 let reqSeq = 0;
@@ -66,6 +67,11 @@ export const workerClient = {
   },
   checkDraft(draft: Draft, nowMin: number): Promise<DraftCheck> {
     return call<DraftCheck>({ type: 'check-draft', draft, nowMin }).then((r) => r.payload!);
+  },
+  meetingOptions(familyId: string): Promise<{ joint: MeetingOption; separate: MeetingOption }> {
+    return call<{ joint: MeetingOption; separate: MeetingOption }>({ type: 'meeting-options', familyId }).then(
+      (r) => r.payload!,
+    );
   },
   listEvents(): Promise<AppEvent[]> {
     return call<AppEvent[]>({ type: 'list-events' }).then((r) => r.payload!);

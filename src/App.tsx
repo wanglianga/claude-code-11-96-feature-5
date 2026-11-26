@@ -6,14 +6,22 @@ import { DispatchView } from './views/DispatchView';
 import { RepairView } from './views/RepairView';
 import { ResourcesView } from './views/ResourcesView';
 import { ReplayView } from './views/ReplayView';
+import { CoordinatorView } from './views/CoordinatorView';
+import { GuardView } from './views/GuardView';
+import { InterpreterView } from './views/InterpreterView';
+import { MeetingTeacherView } from './views/MeetingTeacherView';
 import { minToHM } from './lib/time';
 import type { Role } from './types';
 
 const NAV: { key: string; label: string; role: Role | null }[] = [
   { key: 'teacher', label: '教师工作台', role: 'teacher' },
+  { key: 'meeting-teacher', label: '教师·家长会谈', role: 'teacher' },
   { key: 'facility', label: '设施工作台', role: 'facility' },
   { key: 'dispatch', label: '调度工作台', role: 'dispatcher' },
   { key: 'repair', label: '维修工作台', role: 'repair' },
+  { key: 'coordinator', label: '接待预约工作台', role: 'coordinator' },
+  { key: 'guard', label: '门岗工作台', role: 'guard' },
+  { key: 'interpreter', label: '口译排班', role: 'interpreter' },
   { key: 'resources', label: '资源与课表', role: null },
   { key: 'replay', label: '事件回放', role: null },
 ];
@@ -23,6 +31,9 @@ const ROLE_LABELS: Record<Role, string> = {
   facility: '设施人员',
   dispatcher: '调度员',
   repair: '维修人员',
+  coordinator: '接待协调员',
+  guard: '门岗',
+  interpreter: '口译员',
 };
 
 function Shell() {
@@ -37,8 +48,8 @@ function Shell() {
     <>
       <header className="app-header">
         <div>
-          <h1>教室故障与临时改排工作台</h1>
-          <div className="sub">React + TypeScript + IndexedDB + WebWorker ｜ 事件溯源 · 本地可回放</div>
+          <h1>校园后勤与家长会谈接待工作台</h1>
+          <div className="sub">React + TypeScript + IndexedDB + WebWorker ｜ 事件溯源 · 本地可回放 · 共同/个别记录分别建模</div>
         </div>
         <div className="header-controls">
           <label>
@@ -87,9 +98,13 @@ function Shell() {
         </nav>
         <main>
           {tab === 'teacher' && <TeacherView />}
+          {tab === 'meeting-teacher' && <MeetingTeacherView />}
           {tab === 'facility' && <FacilityView />}
           {tab === 'dispatch' && <DispatchView />}
           {tab === 'repair' && <RepairView />}
+          {tab === 'coordinator' && <CoordinatorView />}
+          {tab === 'guard' && <GuardView />}
+          {tab === 'interpreter' && <InterpreterView />}
           {tab === 'resources' && <ResourcesView />}
           {tab === 'replay' && <ReplayView />}
         </main>

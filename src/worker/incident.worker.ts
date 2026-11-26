@@ -6,6 +6,7 @@ import { appendEvent, clearEvents, getAllEvents } from '../db/idb';
 import { initialSnapshot, replay } from '../engine/reducer';
 import { computePlans, evaluateRooms } from '../engine/scheduling';
 import { checkDraft } from '../engine/commands';
+import { evaluateMeetingOptions } from '../engine/meeting';
 
 export type WorkerRequest =
   | { reqId: number; type: 'boot' }
@@ -14,6 +15,7 @@ export type WorkerRequest =
   | { reqId: number; type: 'compute-plans' }
   | { reqId: number; type: 'evaluate-rooms'; courseId: string }
   | { reqId: number; type: 'check-draft'; draft: Draft; nowMin: number }
+  | { reqId: number; type: 'meeting-options'; familyId: string }
   | { reqId: number; type: 'list-events' }
   | { reqId: number; type: 'reset' };
 
@@ -66,6 +68,11 @@ self.onmessage = async (msg: MessageEvent<WorkerRequest>) => {
       case 'check-draft': {
         const verdict = checkDraft(current, req.draft, req.nowMin);
         self.postMessage({ reqId: req.reqId, ok: true, payload: verdict } satisfies WorkerResponse);
+        break;
+      }
+      case 'meeting-options': {
+        const options = evaluateMeetingOptions(current, req.familyId);
+        self.postMessage({ reqId: req.reqId, ok: true, payload: options } satisfies WorkerResponse);
         break;
       }
       case 'list-events': {

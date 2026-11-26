@@ -1,14 +1,26 @@
-import type { Course, Room, User } from '../types';
+import type {
+  Course,
+  Family,
+  Interpreter,
+  MeetingRoom,
+  Room,
+  Student,
+  TeacherLink,
+  User,
+} from '../types';
 import { hmToMin } from './time';
 
 // ---------- 用户（测试账号） ----------
 export const SEED_USERS: User[] = [
-  { id: 'u_teacher_a', name: '林老师（A 班）', role: 'teacher' },
-  { id: 'u_teacher_b', name: '周老师（B 班）', role: 'teacher' },
-  { id: 'u_teacher_s', name: '苏老师（S 研讨）', role: 'teacher' },
+  { id: 'u_teacher_a', name: '林老师（A 班·班主任）', role: 'teacher' },
+  { id: 'u_teacher_b', name: '周老师（B 班·数学教师）', role: 'teacher' },
+  { id: 'u_teacher_s', name: '苏老师（S 研讨·只教王小明）', role: 'teacher' },
   { id: 'u_facility', name: '王设施（设施人员）', role: 'facility' },
   { id: 'u_dispatch', name: '陈调度（调度员）', role: 'dispatcher' },
   { id: 'u_repair', name: '赵维修（维修人员）', role: 'repair' },
+  { id: 'u_coordinator', name: '何协调（接待协调员）', role: 'coordinator' },
+  { id: 'u_guard', name: '马门岗（门岗值班）', role: 'guard' },
+  { id: 'u_interpreter', name: '艾口译（口译员）', role: 'interpreter' },
 ];
 
 // ---------- 教室资源 ----------
@@ -139,3 +151,66 @@ export function roomById(id: string, rooms: Room[]): Room {
   if (!r) throw new Error(`未知教室: ${id}`);
   return r;
 }
+
+// ==================================================================
+// 家长会谈预约种子（feature-5）
+// 题目窗口：家长 15:00-16:30；口译员 15:30-16:30；
+// 班主任与数学教师 15:30-16:10；接待室整段可用；每位学生 20 分钟
+// ==================================================================
+
+export const SEED_FAMILIES: Family[] = [
+  {
+    id: 'fam_wang',
+    name: '王姓家庭',
+    parentId: 'p_wang',
+    parentName: '王家长',
+    studentIds: ['stu_ming', 'stu_hua'],
+    needsInterpreter: true,
+    availableStartMin: hmToMin('15:00'),
+    availableEndMin: hmToMin('16:30'),
+  },
+];
+
+export const SEED_STUDENTS: Student[] = [
+  { id: 'stu_ming', name: '王小明', familyId: 'fam_wang', homeroomTeacherId: 'u_teacher_a' },
+  { id: 'stu_hua', name: '王小华', familyId: 'fam_wang', homeroomTeacherId: 'u_teacher_a' },
+];
+
+/** 任教关系：教师只可读自己所教学生的记录（苏老师只教王小明，用于验证越权拒绝） */
+export const SEED_TEACHINGS: TeacherLink[] = [
+  { teacherId: 'u_teacher_a', studentId: 'stu_ming', subject: 'homeroom' },
+  { teacherId: 'u_teacher_a', studentId: 'stu_hua', subject: 'homeroom' },
+  { teacherId: 'u_teacher_b', studentId: 'stu_ming', subject: 'math' },
+  { teacherId: 'u_teacher_b', studentId: 'stu_hua', subject: 'math' },
+  { teacherId: 'u_teacher_s', studentId: 'stu_ming', subject: 'seminar' },
+];
+
+export const SEED_INTERPRETERS: Interpreter[] = [
+  { id: 'int_ai', name: '艾口译', startMin: hmToMin('15:30'), endMin: hmToMin('16:30') },
+];
+
+export const SEED_MEETING_ROOMS: MeetingRoom[] = [
+  {
+    id: 'mr_reception',
+    name: '行政楼一层接待室',
+    startMin: hmToMin('15:00'),
+    endMin: hmToMin('16:30'),
+  },
+];
+
+/** 题目给定的会谈时间常量（分钟），供可行性引擎与 UI 共用 */
+export const MEETING_WINDOW = {
+  parentStart: hmToMin('15:00'),
+  parentEnd: hmToMin('16:30'),
+  interpreterStart: hmToMin('15:30'),
+  interpreterEnd: hmToMin('16:30'),
+  teacherStart: hmToMin('15:30'),
+  teacherEnd: hmToMin('16:10'),
+  perStudentMin: 20,
+  jointStart: hmToMin('15:30'),
+  jointEnd: hmToMin('16:10'),
+  splitAStart: hmToMin('15:30'),
+  splitAEnd: hmToMin('15:50'),
+  splitBStart: hmToMin('15:50'),
+  splitBEnd: hmToMin('16:10'),
+};

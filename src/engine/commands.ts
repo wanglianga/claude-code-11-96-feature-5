@@ -24,11 +24,16 @@ export function setSeqStart(n: number): void {
 }
 
 type DistributiveOmit<T, K extends string> = T extends unknown ? Omit<T, K> : never;
-type EventBody = DistributiveOmit<AppEvent, 'seq' | 'at'>;
+export type EventBody = DistributiveOmit<AppEvent, 'seq' | 'at'>;
 
 function ev(partial: EventBody, atMin: number): AppEvent {
   seqCounter += 1;
   return { seq: seqCounter, at: todayISO(atMin), ...partial } as AppEvent;
+}
+
+/** 会谈命令模块复用同一 seq 计数器，保证全站事件序号连续 */
+export function makeEvent(partial: EventBody, atMin: number): AppEvent {
+  return ev(partial, atMin);
 }
 
 /**
